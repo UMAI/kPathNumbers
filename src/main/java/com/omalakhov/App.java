@@ -14,6 +14,7 @@ public class App {
     public static void main(String[] args) throws FileNotFoundException, ApplicationException {
         runTreeExample();
         runGraph3PathExample();
+        runGraphKPathPruningExample();
     }
 
     private static void runTreeExample() throws FileNotFoundException, ApplicationException {
@@ -28,5 +29,12 @@ public class App {
         KPathVertexCoverFinder kPVCFinder = new KPathVertexCoverFinder();
         Set<Vertex> threePathVertexCover = kPVCFinder.findGraph3PathVertexCover(graph);
         System.out.println(threePathVertexCover.stream().map(Vertex::getValue).collect(Collectors.toList()));
+    }
+
+    private static void runGraphKPathPruningExample() throws FileNotFoundException, ApplicationException {
+        Graph graph = new Graph(Reader.readGraphEdges("D:\\Projects\\kPathNumbers\\src\\main\\java\\com\\omalakhov\\files\\graph.txt"));
+        KPathVertexCoverFinder kPVCFinder = new KPathVertexCoverFinder();
+        Set<Vertex> kPathVertexCover = kPVCFinder.findGraphKPathVertexCoverPruning(graph, 3);
+        System.out.println(kPathVertexCover.stream().map(Vertex::getValue).collect(Collectors.toList()));
     }
 }

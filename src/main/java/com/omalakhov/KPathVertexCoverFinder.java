@@ -87,4 +87,14 @@ public class KPathVertexCoverFinder {
             threePathVertexCover.addAll(set2);
         }
     }
+
+    public Set<Vertex> findGraphKPathVertexCoverPruning(Graph graph, int k) {
+        Set<Vertex> kPathVertexCover = new HashSet<>(graph.getVertices());
+        for (Vertex vertex : graph.getVertices()) {
+            if (!vertex.isNecessary(kPathVertexCover, k)) {
+                kPathVertexCover.remove(vertex);
+            }
+        }
+        return kPathVertexCover;
+    }
 }

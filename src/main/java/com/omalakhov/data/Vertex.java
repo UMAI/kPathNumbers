@@ -1,9 +1,6 @@
 package com.omalakhov.data;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class Vertex {
     private String value;
@@ -49,6 +46,29 @@ public class Vertex {
             return (int) adjacentVertices.stream().filter(subGraph::contains).count();
         }
         return 0;
+    }
+
+    public boolean isNecessary(Set<Vertex> kPathVertexCover, int k) {
+        Set<Vertex> path = new HashSet<>(Collections.singleton(this));
+        return disjointKPathExists(kPathVertexCover, k, path);
+    }
+
+    private boolean disjointKPathExists(Set<Vertex> kPathVertexCover, int k, Set<Vertex> path) {
+        if (path.size() == k + 1) {
+            return true;
+        }
+        for (Vertex adjacentVertex : adjacentVertices) {
+            if (!path.contains(adjacentVertex) && !kPathVertexCover.contains(adjacentVertex)) {
+                path.add(adjacentVertex);
+                if (adjacentVertex.disjointKPathExists(kPathVertexCover, k, path)) {
+                    return true;
+                }
+                else {
+                    path.remove(adjacentVertex);
+                }
+            }
+        }
+        return false;
     }
 
     @Override
