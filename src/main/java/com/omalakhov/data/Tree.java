@@ -1,12 +1,12 @@
 package com.omalakhov.data;
 
-import com.omalakhov.exception.TreeException;
+import com.omalakhov.exception.ApplicationException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.omalakhov.exception.TreeException.Type.*;
+import static com.omalakhov.exception.ApplicationException.Type.*;
 
 public class Tree {
     private String value;
@@ -18,13 +18,13 @@ public class Tree {
         this.value = value;
     }
 
-    public Tree(Map<String, String> vertexParent) throws TreeException {
+    public Tree(Map<String, String> vertexParent) throws ApplicationException {
         value = findRoot(vertexParent);
         buildTree(this, vertexParent);
         recalculateHeight();
     }
 
-    private String findRoot(Map<String, String> vertexParent) throws TreeException {
+    private String findRoot(Map<String, String> vertexParent) throws ApplicationException {
         String root = null;
         for (Map.Entry<String, String> entry : vertexParent.entrySet()) {
             if (entry.getValue() == null || entry.getValue().isEmpty()) {
@@ -33,7 +33,7 @@ public class Tree {
             }
         }
         if (root == null) {
-            throw new TreeException(ROOT_NOT_FOUND);
+            throw new ApplicationException(TREE_ROOT_NOT_FOUND);
         }
         return root;
     }
@@ -64,10 +64,6 @@ public class Tree {
             }
         }
         return maxSubtreeHeight + secondToMaxSubtreeHeight + 2 >= pathLength;
-    }
-
-    public boolean isRootOfProperlyRootedSubtree(final int pathLength) {
-        return children.stream().noneMatch(child -> child.getHeight() >= pathLength);
     }
 
     public int recalculateHeight() {

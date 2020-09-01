@@ -1,9 +1,9 @@
 package com.omalakhov.exception;
 
-public class TreeException extends Exception {
+public class ApplicationException extends Exception {
     public enum Type {
-        ROOT_NOT_FOUND("A root (a vertex without a parent) was not found"),
-        WRONG_INPUT_FILE_FORMAT("Wrong input file format at line: {0}");
+        TREE_ROOT_NOT_FOUND("A root (a vertex without a parent) of a tree was not found"),
+        WRONG_INPUT_FILE_FORMAT("Wrong input file format");
 
         private String message;
 
@@ -20,11 +20,11 @@ public class TreeException extends Exception {
         }
     }
 
-    public TreeException(Type type, String... messageParams) {
+    public ApplicationException(Type type, String... messageParams) {
         super(type.getMessage(messageParams));
     }
 
-    public TreeException(Throwable exception, Type type, String... messageParams) {
+    public ApplicationException(Throwable exception, Type type, String... messageParams) {
         super(type.getMessage(messageParams), exception);
     }
 }
