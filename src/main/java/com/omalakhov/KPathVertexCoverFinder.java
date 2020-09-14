@@ -1,7 +1,7 @@
 package com.omalakhov;
 
 import com.omalakhov.data.Graph;
-import com.omalakhov.data.Tree;
+import com.omalakhov.data.TreeNode;
 import com.omalakhov.data.Vertex;
 
 import java.util.*;
@@ -18,17 +18,17 @@ public class KPathVertexCoverFinder {
 		return instance;
 	}
 
-	public Set<Tree> findTreeKPathVertexCover(Tree tree, int k) {
-		Set<Tree> kPathVertexCover = new HashSet<>();
-		while (tree.containsProperlyRootedSubTree(k)) {
-			kPathVertexCover.add(findNextVertexForTreeKPathVertexCover(tree, k));
-			tree.recalculateHeight();
+	public Set<TreeNode> findTreeKPathVertexCover(TreeNode root, int k) {
+		Set<TreeNode> kPathVertexCover = new HashSet<>();
+		while (root.containsProperlyRootedSubTree(k)) {
+			kPathVertexCover.add(findNextVertexForTreeKPathVertexCover(root, k));
+			root.recalculateHeight();
 		}
 		return kPathVertexCover;
 	}
 
-	private Tree findNextVertexForTreeKPathVertexCover(Tree tree, int k) {
-		Optional<Tree> subTreeContainingProperlyRootedSubTree = tree
+	private TreeNode findNextVertexForTreeKPathVertexCover(TreeNode treeNode, int k) {
+		Optional<TreeNode> subTreeContainingProperlyRootedSubTree = treeNode
 				.getChildren()
 				.stream()
 				.filter(child -> child.containsProperlyRootedSubTree(k))
@@ -37,13 +37,13 @@ public class KPathVertexCoverFinder {
 			return findNextVertexForTreeKPathVertexCover(subTreeContainingProperlyRootedSubTree.get(), k);
 		}
 		else {
-			if (tree.getParent() != null) {
-				tree.getParent().getChildren().removeIf(tree::equals);
+			if (treeNode.getParent() != null) {
+				treeNode.getParent().getChildren().removeIf(treeNode::equals);
 			}
 			else {
-				tree.getChildren().clear();
+				treeNode.getChildren().clear();
 			}
-			return tree;
+			return treeNode;
 		}
 	}
 

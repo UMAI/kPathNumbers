@@ -2,6 +2,7 @@ package com.omalakhov;
 
 import com.omalakhov.data.Graph;
 import com.omalakhov.data.Tree;
+import com.omalakhov.data.TreeNode;
 import com.omalakhov.data.Vertex;
 import com.omalakhov.exception.ApplicationException;
 import com.omalakhov.io.Reader;
@@ -113,7 +114,7 @@ public class App {
 		Map<String, String> treeVertexParentMapping = Reader.getInstance().readTreeVertexParentMapping();
 		Tree tree = new Tree(treeVertexParentMapping);
 		long startTime = System.currentTimeMillis();
-		Set<Tree> kPathVertexCover = KPathVertexCoverFinder.getInstance().findTreeKPathVertexCover(tree, k);
+		Set<TreeNode> kPathVertexCover = KPathVertexCoverFinder.getInstance().findTreeKPathVertexCover(tree.getRoot(), k);
 		long runningTime = System.currentTimeMillis() - startTime;
 		Writer.getInstance().printVertexCover(Algorithm.TREE_K_PATH_VERTEX_COVER.getOutputText(), runningTime, kPathVertexCover, treeVertexParentMapping.size());
 	}
