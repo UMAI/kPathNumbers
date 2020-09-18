@@ -18,32 +18,46 @@ public class KPathVertexCoverFinder {
 		return instance;
 	}
 
-	public Set<TreeNode> findTreeKPathVertexCover(TreeNode root, int k) {
+	public Set<TreeNode> findTreeKPathVertexCoverIterative(TreeNode root, int k) {
 		Set<TreeNode> kPathVertexCover = new HashSet<>();
-		while (root.containsProperlyRootedSubTree(k)) {
-			kPathVertexCover.add(findNextVertexForTreeKPathVertexCover(root, k));
-			root.recalculateHeight();
+		Stack<TreeNode> tmpStack = new Stack<>();
+		Stack<TreeNode> verticesPostorder = new Stack<>();
+		tmpStack.push(root);
+		while (!tmpStack.isEmpty()) {
+			TreeNode currentVertex = tmpStack.pop();
+			if (currentVertex.getChildren() != null && !currentVertex.getChildren().isEmpty()) {
+				currentVertex.getChildren().forEach(tmpStack::push);
+			}
+			verticesPostorder.push(currentVertex);
+		}
+		while (!verticesPostorder.isEmpty()) {
+			TreeNode currentVertex = verticesPostorder.pop();
+			if (currentVertex.subtreeContainsPathOfLength(k)) {
+				kPathVertexCover.add(currentVertex);
+				if (currentVertex.getParent() != null) {
+					currentVertex.getParent().removeChild(currentVertex);
+				}
+				else {
+					currentVertex.getChildren().clear();
+				}
+			}
 		}
 		return kPathVertexCover;
 	}
 
-	private TreeNode findNextVertexForTreeKPathVertexCover(TreeNode treeNode, int k) {
-		Optional<TreeNode> subTreeContainingProperlyRootedSubTree = treeNode
-				.getChildren()
-				.stream()
-				.filter(child -> child.containsProperlyRootedSubTree(k))
-				.findAny();
-		if (subTreeContainingProperlyRootedSubTree.isPresent()) {
-			return findNextVertexForTreeKPathVertexCover(subTreeContainingProperlyRootedSubTree.get(), k);
+	private void recursivelyAddVerticesToKPathVertexCover(Set<TreeNode> kPathVertexCover, TreeNode currentVertex, int k) {
+		if (currentVertex.getChildren() != null && !currentVertex.getChildren().isEmpty()) {
+			List<TreeNode> currentVertexChildren = new ArrayList<>(currentVertex.getChildren());
+			currentVertexChildren.forEach(child -> recursivelyAddVerticesToKPathVertexCover(kPathVertexCover, child, k));
 		}
-		else {
-			if (treeNode.getParent() != null) {
-				treeNode.getParent().getChildren().removeIf(treeNode::equals);
+		if (currentVertex.subtreeContainsPathOfLength(k)) {
+			kPathVertexCover.add(currentVertex);
+			if (currentVertex.getParent() != null) {
+				currentVertex.getParent().removeChild(currentVertex);
 			}
 			else {
-				treeNode.getChildren().clear();
+				currentVertex.getChildren().clear();
 			}
-			return treeNode;
 		}
 	}
 

@@ -21,12 +21,13 @@ public class Tree {
 		root = new TreeNode(rootValue);
 		nodes.put(rootValue, root);
 		vertexParentMapping.remove(rootValue);
-		vertexParentMapping.forEach((vertex, parent) -> {
-			TreeNode node = nodes.computeIfAbsent(vertex, TreeNode::new);
-			TreeNode parentNode = nodes.computeIfAbsent(parent, TreeNode::new);
+		for (Map.Entry<String, String> entry : vertexParentMapping.entrySet()) {
+			TreeNode node = nodes.computeIfAbsent(entry.getKey(), TreeNode::new);
+			TreeNode parentNode = nodes.computeIfAbsent(entry.getValue(), TreeNode::new);
 			parentNode.addChild(node);
-		});
-		root.recalculateHeight();
+			node.setParent(parentNode);
+		}
+		root.calculateHeight();
 	}
 
 	public Map<String, TreeNode> getNodes() {

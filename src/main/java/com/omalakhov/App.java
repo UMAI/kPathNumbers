@@ -16,7 +16,7 @@ import static com.omalakhov.exception.ApplicationException.Type.*;
 
 public class App {
 	private enum Algorithm {
-		TREE_K_PATH_VERTEX_COVER("treeKPVC", "Tree k-path vertex cover"),
+		TREE_K_PATH_VERTEX_COVER("treeKPVC", "Tree {0}-path vertex cover"),
 		GRAPH_THREE_PATH_VERTEX_COVER("graph3PVC", "Graph 3-path vertex cover"),
 		GRAPH_K_PATH_VERTEX_COVER_PRUNING("graphKPVC", "Pruning algorithm for k = {0}"),
 		GRAPH_K_PATH_SEQUENCE_PRUNING("graphKPSeq", "Pruning algorithm for k = {0}");
@@ -97,55 +97,60 @@ public class App {
 		}
 		switch (algorithm) {
 			case TREE_K_PATH_VERTEX_COVER:
-				runTreeKPathVertexCover(kValues.get(0));
+				runTreeKPathVertexCover(kValues);
 				break;
 			case GRAPH_THREE_PATH_VERTEX_COVER:
 				runGraph3PathExample();
 				break;
 			case GRAPH_K_PATH_VERTEX_COVER_PRUNING:
-				runGraphKPathPruningExample(kValues.get(0), sorted);
+				runGraphKPathPruningExample(kValues, sorted);
 				break;
 			case GRAPH_K_PATH_SEQUENCE_PRUNING:
 				runGraphPathSequencePruningExample(kValues, sorted);
 		}
 	}
 
-	private static void runTreeKPathVertexCover(int k) throws ApplicationException {
+	private static void runTreeKPathVertexCover(List<Integer> kValues) throws ApplicationException {
 		Map<String, String> treeVertexParentMapping = Reader.getInstance().readTreeVertexParentMapping();
-		Tree tree = new Tree(treeVertexParentMapping);
-		long startTime = System.currentTimeMillis();
-		Set<TreeNode> kPathVertexCover = KPathVertexCoverFinder.getInstance().findTreeKPathVertexCover(tree.getRoot(), k);
-		long runningTime = System.currentTimeMillis() - startTime;
-		Writer.getInstance().printVertexCover(Algorithm.TREE_K_PATH_VERTEX_COVER.getOutputText(), runningTime, kPathVertexCover, treeVertexParentMapping.size());
+		for (Integer k : kValues) {
+			Tree tree = new Tree(new HashMap<>(treeVertexParentMapping));
+			long startTime = System.nanoTime();
+			Set<TreeNode> kPathVertexCover = KPathVertexCoverFinder.getInstance().findTreeKPathVertexCoverIterative(tree.getRoot(), k);
+			long runningTime = (System.nanoTime() - startTime) / 1000000;
+			Writer.getInstance().printVertexCover(Algorithm.TREE_K_PATH_VERTEX_COVER.getOutputText(String.valueOf(k)), runningTime, kPathVertexCover, treeVertexParentMapping.size());
+			System.gc();
+		}
 	}
 
 	private static void runGraph3PathExample() throws ApplicationException {
 		Graph graph = new Graph(Reader.getInstance().readGraphEdges());
 		int graphSize = graph.getNumberOfVertices();
-		long startTime = System.currentTimeMillis();
+		long startTime = System.nanoTime();
 		Set<Vertex> threePathVertexCover = KPathVertexCoverFinder.getInstance().findGraph3PathVertexCover(graph);
-		long runningTime = System.currentTimeMillis() - startTime;
+		long runningTime = (System.nanoTime() - startTime) / 1000000;
 		Writer.getInstance().printVertexCover(Algorithm.GRAPH_THREE_PATH_VERTEX_COVER.getOutputText(), runningTime, threePathVertexCover, graphSize);
 	}
 
-	private static void runGraphKPathPruningExample(int k, boolean sorted) throws ApplicationException {
+	private static void runGraphKPathPruningExample(List<Integer> kValues, boolean sorted) throws ApplicationException {
 		Graph graph = new Graph(Reader.getInstance().readGraphEdges());
 		int graphSize = graph.getNumberOfVertices();
-		long startTime = System.currentTimeMillis();
-		Set<Vertex> initialVertexCover = sorted ? new TreeSet<>(graph.getVertices()) : new HashSet<>(graph.getVertices());
-		Set<Vertex> kPathVertexCover = KPathVertexCoverFinder.getInstance().findGraphKPathVertexCoverPruning(initialVertexCover, k);
-		long runningTime = System.currentTimeMillis() - startTime;
-		Writer.getInstance().printVertexCover(Algorithm.GRAPH_K_PATH_VERTEX_COVER_PRUNING.getOutputText(String.valueOf(k)), runningTime, kPathVertexCover, graphSize);
+		for (Integer k : kValues) {
+			long startTime = System.nanoTime();
+			Set<Vertex> initialVertexCover = sorted ? new TreeSet<>(graph.getVertices()) : new HashSet<>(graph.getVertices());
+			Set<Vertex> kPathVertexCover = KPathVertexCoverFinder.getInstance().findGraphKPathVertexCoverPruning(initialVertexCover, k);
+			long runningTime = (System.nanoTime() - startTime) / 1000000;
+			Writer.getInstance().printVertexCover(Algorithm.GRAPH_K_PATH_VERTEX_COVER_PRUNING.getOutputText(String.valueOf(k)), runningTime, kPathVertexCover, graphSize);
+		}
 	}
 
 	private static void runGraphPathSequencePruningExample(List<Integer> kValues, boolean sorted) throws ApplicationException {
 		Graph graph = new Graph(Reader.getInstance().readGraphEdges());
 		int graphSize = graph.getNumberOfVertices();
 		Set<Vertex> prevVertexCover = sorted ? new TreeSet<>(graph.getVertices()) : new HashSet<>(graph.getVertices());
-		long startTime = System.currentTimeMillis();
+		long startTime = System.nanoTime();
 		for (Integer k : kValues) {
 			Set<Vertex> iPathVertexCover = KPathVertexCoverFinder.getInstance().findGraphKPathVertexCoverPruning(prevVertexCover, k);
-			long runningTime = System.currentTimeMillis() - startTime;
+			long runningTime = (System.nanoTime() - startTime) / 1000000;
 			Writer.getInstance().printVertexCover(Algorithm.GRAPH_K_PATH_SEQUENCE_PRUNING.getOutputText(String.valueOf(k)), runningTime, iPathVertexCover, graphSize);
 			prevVertexCover = sorted ? new TreeSet<>(iPathVertexCover) : new HashSet<>(iPathVertexCover);
 		}

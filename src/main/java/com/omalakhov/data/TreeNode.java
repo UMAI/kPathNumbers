@@ -14,11 +14,12 @@ public class TreeNode implements ValueData {
 		this.value = value;
 	}
 
-	public boolean containsProperlyRootedSubTree(int pathLength) {
+	public boolean subtreeContainsPathOfLength(int pathLength) {
 		if (height >= pathLength) {
 			return true;
 		}
-		int maxSubtreeHeight = -1, secondToMaxSubtreeHeight = -1;
+		int maxSubtreeHeight = 0;
+		int secondToMaxSubtreeHeight = 0;
 		for (TreeNode child : children) {
 			int childHeight = child.getHeight();
 			if (childHeight > maxSubtreeHeight) {
@@ -32,14 +33,21 @@ public class TreeNode implements ValueData {
 		return maxSubtreeHeight + secondToMaxSubtreeHeight + 1 >= pathLength;
 	}
 
-	public int recalculateHeight() {
+	public int calculateHeight() {
 		if (children == null || children.isEmpty()) {
 			height = 1;
 		}
 		else {
-			height = children.stream().map(TreeNode::recalculateHeight).max(Integer::compareTo).get() + 1;
+			height = children.stream().map(TreeNode::calculateHeight).max(Integer::compareTo).get() + 1;
 		}
 		return height;
+	}
+
+	public int calculateSubtreeSize() {
+		if (children == null || children.isEmpty()) {
+			return 1;
+		}
+		return children.stream().map(TreeNode::calculateSubtreeSize).mapToInt(Integer::intValue).sum() + 1;
 	}
 
 	public String getValue() {
@@ -71,6 +79,21 @@ public class TreeNode implements ValueData {
 			children = new ArrayList<>();
 		}
 		children.add(child);
+	}
+
+	public void removeChild(TreeNode child) {
+		children.remove(child);
+		propagateHeightChange(child.getHeight());
+	}
+
+	public void propagateHeightChange(int oldChildHeight) {
+		if (oldChildHeight + 1 == height) {
+			int oldHeight = height;
+			height = children.stream().map(TreeNode::getHeight).max(Integer::compareTo).orElse(0) + 1;
+			if (height != oldHeight && parent != null) {
+				parent.propagateHeightChange(oldHeight);
+			}
+		}
 	}
 
 	public int getHeight() {
